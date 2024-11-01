@@ -47,11 +47,13 @@ if exist %out_exe% (
 )
 
 
-set "flags=/W4 /D _UNICODE /D UNICODE"
+set "flags=/W4 /D _UNICODE /D UNICODE /D NOMINMAX"
 if "%configuration%"=="terminal" (
-    set "flags=%flags% /D TERMINAL_RUN /D DEBUG"
+    set "flags=%flags% /D TERMINAL_RUN /D DEBUG /D _DEBUG"
+    set "libraties=%libraties% dxguid.lib"
 ) else if "%configuration%"=="debug" (
-    set "flags=%flags% /Zi /D DEBUG"
+    set "flags=%flags% /Zi /D DEBUG /D _DEBUG"
+    set "libraties=%libraties% dxguid.lib"
 ) else if not "%configuration%"=="release" (
     echo Unknown configuration "%configuration%". Possible: "terminal", "debug", "release"
     exit /b 1

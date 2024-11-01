@@ -35,12 +35,13 @@ if errorlevel 1 (
 %modification_date_exe% %~dp0 > %last_build%
 
 echo Compiling shaders
-REM TODO
-
+REM TODO Skompiluj i ogarnij debug
+@REM #define D3DCOMPILE_DEBUG 1
 
 :END
 if exist %tmp_file% (
     del %tmp_file%
 )
 exit /b 0
+
 
