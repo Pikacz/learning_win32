@@ -1,4 +1,5 @@
 ﻿scripts/bin
 build
-.vscode
+.vscode/
+!.vscode/c_cpp_properties.json
 vc140.pdb

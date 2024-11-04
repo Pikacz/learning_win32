@@ -1,28 +1,23 @@
 #pragma once
 
+#ifdef WIN_32_BUILD
+
 #include <wchar.h>
 #include <windows.h>
 #include <stdio.h>
 
-
-
-
 #ifdef DEBUG
-
-
 #define LOG(format, ...) LOG_PATH( __FILE__, __LINE__, format, ##__VA_ARGS__)
+#define CanLog() true
 
 #ifdef TERMINAL_RUN
+
 void SetupDiagnostics()
 {
     SetConsoleOutputCP(CP_UTF8);
 }
 
-
 #define LOG_PATH(file, line, format, ...) printf("%s:%lu ", file, line); printf(format, ##__VA_ARGS__)
-
-
-#define CanLog() true
 
 #else
 
@@ -60,11 +55,9 @@ void _logFile(const char * file, unsigned int line)
         free(output); \
     }
 
-
-#define CanLog() true
-
 #endif
 #else
+
 void SetupDiagnostics()
 {
 }
@@ -75,5 +68,7 @@ bool CanLog()
 {
     return false;
 }
+
+#endif
 
 #endif

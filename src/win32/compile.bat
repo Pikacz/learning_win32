@@ -7,6 +7,7 @@ if "%~3"=="" (
 set "root_dir=%~1"
 set "exe_name=%~2"
 set "configuration=%~3"
+
 set "build_dir=%root_dir%build\"
 set "last_build=%build_dir%%exe_name%_last_build.txt"
 set "tmp_file=%build_dir%tmp.txt"
@@ -21,7 +22,7 @@ if not exist %last_build% (
     goto BUILD
 )
 
-%modification_date_exe% %~dp0 > %tmp_file%
+%modification_date_exe% %root_dir%src\ > %tmp_file%
 if errorlevel 1 (
     echo Unable to check date of the changes
     exit /b 1
@@ -38,21 +39,22 @@ if errorlevel 1 (
 echo Compiling sources
 
 set "main_file=%~dp0main.cpp"
+set "shared_sources=%root_dir%src\shared"
 set "out_exe=%build_dir%%exe_name%.exe"
 set "out_obj=%build_dir%%exe_name%.obj"
-set "libraties=user32.lib D3D12.lib DXGI.lib"
+set "libraties=user32.lib D3D12.lib DXGI.lib D3DCompiler.lib"
 
 if exist %out_exe% (
     del %out_exe%
 )
 
 
-set "flags=/W4 /D _UNICODE /D UNICODE /D NOMINMAX"
+set "flags=/W4 /D _UNICODE /D UNICODE /D NOMINMAX /D WIN_32_BUILD /I%shared_sources%"
 if "%configuration%"=="terminal" (
-    set "flags=%flags% /D TERMINAL_RUN /D DEBUG /D _DEBUG"
+    set "flags=%flags% /D TERMINAL_RUN /D DEBUG /D _DEBUG /D GPU_DEBUG"
     set "libraties=%libraties% dxguid.lib"
 ) else if "%configuration%"=="debug" (
-    set "flags=%flags% /Zi /D DEBUG /D _DEBUG"
+    set "flags=%flags% /Zi /D DEBUG /D _DEBUG /D GPU_DEBUG"
     set "libraties=%libraties% dxguid.lib"
 ) else if not "%configuration%"=="release" (
     echo Unknown configuration "%configuration%". Possible: "terminal", "debug", "release"

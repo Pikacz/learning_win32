@@ -49,8 +49,15 @@ struct Dx12Renderer
     ComPtr<ID3D12Resource> renderTargets[Dx12Renderer_internal::swapBufferCount];
     ComPtr<ID3D12Resource> depthStencil;
 
+    ComPtr<ID3D12CommandQueue> copyCommandQueue;
+    ComPtr<ID3D12GraphicsCommandList> copyCommandList;
+    ComPtr<ID3D12Fence> copyFence;
+    UINT64 copyFenceValue;
+
     UINT backBufferIndex;
     UINT rtvDescriptorSize;
+
+
 
     void Initialize(HWND windowHandle, int width, int height);
     void Tick(uint64_t numberOfTicks);
@@ -73,6 +80,8 @@ namespace Dx12Renderer_internal
     void ondDeviceLost(Dx12Renderer* instance);
 
     void waitForGpu(Dx12Renderer* instance);
+
+    void loadContent(Dx12Renderer* instance);
 }
 
 void Dx12Renderer::Initialize(HWND _windowHandle, int width, int height)
@@ -86,6 +95,7 @@ void Dx12Renderer::Initialize(HWND _windowHandle, int width, int height)
         this->fenceValues[i] = 0;
     }
     Dx12Renderer_internal::createDevice(this);
+    LOG("TODO odpowiednik LoadContent z tutorial2\n");
     Dx12Renderer_internal::createResources(this);
     LOG("Did initialize\n");
 }
@@ -309,6 +319,12 @@ void Dx12Renderer_internal::createDevice(Dx12Renderer* instance)
         LOG("Shader model 6.0 not supported!\n");
         exit(1);
     }
+}
+
+
+void Dx12Renderer_internal::loadContent(Dx12Renderer* instance)
+{
+
 }
 
 void Dx12Renderer_internal::createResources(Dx12Renderer* instance)

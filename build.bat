@@ -27,7 +27,7 @@ if ERRORLEVEL 1 (
 )
 
 
-@call "%~dp0src\shaders\compile.bat" "%~dp0"
+@call "%~dp0src\shaders\compile.bat" "%~dp0" "%configuration%"
 if ERRORLEVEL 1 (
     echo Unable to compile shaders %ERRORLEVEL%.
     exit /b %ERRORLEVEL%

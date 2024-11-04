@@ -1,7 +1,7 @@
 @echo off
 
-if "%~1"=="" (
-    echo Usage: %0 root_dir
+if "%~2"=="" (
+    echo Usage: %0 root_dir configuration
     exit /b 1
 )
 set "root_dir=%~1"
@@ -32,11 +32,37 @@ if errorlevel 1 (
 )
 
 :BUILD
+
+set "vertex_shader_name=VertexShader"
+set "pixel_shader_name=PixelShader"
+set "flags="
+
+if "%configuration%"=="terminal" (
+    set "flags_vertex=%flags% /Zi -Fd %build_dir%%vertex_shader_name%.pdb"
+    set "flags_pixel=%flags% /Zi -Fd %build_dir%%pixel_shader_name%.pdb"
+) else if "%configuration%"=="debug" (
+    set "flags_vertex=%flags% /Zi -Fd %build_dir%%vertex_shader_name%.pdb"
+    set "flags_pixel=%flags% /Zi -Fd %build_dir%%pixel_shader_name%.pdb"
+) else if "%configuration%"=="release" (
+    set "flags_vertex=%flags%"
+    set "flags_pixel=%flags%"
+) else (
+    echo Unknown configuration "%configuration%". Possible: "terminal", "debug", "release"
+    exit /b 1
+)
+
+dxc -T vs_6_0 -E main -Fo %build_dir%%vertex_shader_name%.cso %~dp0%vertex_shader_name%.hlsl %flags%
+if errorlevel 1 (
+    exit /b 1
+)
+dxc -T ps_6_0 -E main -Fo %build_dir%%pixel_shader_name%.cso %~dp0%pixel_shader_name%.hlsl %flags%
+if errorlevel 1 (
+    exit /b 1
+)
+
+
 %modification_date_exe% %~dp0 > %last_build%
 
-echo Compiling shaders
-REM TODO Skompiluj i ogarnij debug
-@REM #define D3DCOMPILE_DEBUG 1
 
 :END
 if exist %tmp_file% (

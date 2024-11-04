@@ -9,7 +9,7 @@
 #include <DirectXMath.h>
 
 #include "diagnostics.h"
-#include "Dx12Renderer.h"
+#include "Dx12Game.h"
 
 #include <tuple>
 
@@ -31,10 +31,10 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
     }
     case WM_PAINT:
     {
-        Dx12Renderer* renderer = reinterpret_cast<Dx12Renderer*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
+        Dx12Game* renderer = reinterpret_cast<Dx12Game*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
         if (sInSizeMove && renderer)
         {
-            renderer->Render();
+            renderer->RenderAndWaitForVSync();
         } else {
             PAINTSTRUCT ps;
             std::ignore = BeginPaint(windowHandle, &ps);
@@ -44,10 +44,10 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
     }
     case WM_SIZE:
     {
-        Dx12Renderer* renderer = reinterpret_cast<Dx12Renderer*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
+        Dx12Game* renderer = reinterpret_cast<Dx12Game*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
         if (!sInSizeMove && renderer)
         {
-            renderer->Resize(LOWORD(lParam), HIWORD(lParam));
+            renderer->Resize(static_cast<UINT>(LOWORD(lParam)), static_cast<UINT>(HIWORD(lParam)));
         }
         break;
     }
@@ -59,12 +59,15 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
     case WM_EXITSIZEMOVE:
     {
         sInSizeMove = false;
-        Dx12Renderer* renderer = reinterpret_cast<Dx12Renderer*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
+        Dx12Game* renderer = reinterpret_cast<Dx12Game*>(GetWindowLongPtr(windowHandle, GWLP_USERDATA));
         if (renderer)
         {
             RECT clientRect;
             GetClientRect(windowHandle, &clientRect);
-            renderer->Resize(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
+            renderer->Resize(
+                static_cast<UINT>(clientRect.right - clientRect.left),
+                static_cast<UINT>(clientRect.bottom - clientRect.top)
+            );
         }
         break;
     }
@@ -92,7 +95,22 @@ LRESULT CALLBACK WindowProc(HWND windowHandle, UINT message, WPARAM wParam, LPAR
     return DefWindowProc(windowHandle, message, wParam, lParam);
 }
 
-
+void setWorkingDirectory()
+{
+    wchar_t buffer[32768 + 4];
+    wcscpy_s(buffer, L"\\\\?\\");
+    if (!GetModuleFileNameW(NULL, buffer + 4, MAX_PATH))
+    {
+        return;
+    }
+    wchar_t *lastSlash = wcsrchr(buffer, L'\\');
+    if (lastSlash == NULL)
+    {
+        return;
+    }
+    *lastSlash = L'\0';
+    SetCurrentDirectoryW(buffer);
+}
 
 #ifdef TERMINAL_RUN
 int main(int argc, char* argv[])
@@ -108,15 +126,11 @@ int CALLBACK wWinMain(HINSTANCE appInstance, HINSTANCE hPrevInstance, PWSTR lpCm
     UNREFERENCED_PARAMETER(lpCmdLine);
 #endif
     SetupDiagnostics();
-
-    if (!DirectX::XMVerifyCPUSupport())
-    {
-        LOG("No support for directX math!\n");
-        return 1;
-    }
+    setWorkingDirectory();
     SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-    Dx12Renderer dx12Renderer;
+    Dx12Game dx12Game;
+    Game game;
 
     {
         int width = 800; int height = 600;
@@ -156,7 +170,7 @@ int CALLBACK wWinMain(HINSTANCE appInstance, HINSTANCE hPrevInstance, PWSTR lpCm
             NULL,                                      // hWndParent
             NULL,                                      // hMenu
             appInstance,                               // hInstance
-            &dx12Renderer                              // lpParam
+            &dx12Game                              // lpParam
         );
         if (!windowHandle)
         {
@@ -165,7 +179,12 @@ int CALLBACK wWinMain(HINSTANCE appInstance, HINSTANCE hPrevInstance, PWSTR lpCm
         }
 
         GetClientRect(windowHandle, &windowRect);
-        dx12Renderer.Initialize(windowHandle, windowRect.right - windowRect.left, windowRect.bottom - windowRect.top);
+        dx12Game.Initialize(
+            windowHandle, 
+            static_cast<UINT>(windowRect.right - windowRect.left),
+            static_cast<UINT>(windowRect.bottom - windowRect.top),
+            &game
+        );
         ShowWindow(windowHandle, cmdShow);
     }
     
@@ -189,8 +208,8 @@ int CALLBACK wWinMain(HINSTANCE appInstance, HINSTANCE hPrevInstance, PWSTR lpCm
             {
                 std::swap(previousTimestamp, currentTimestamp);
             }
-            dx12Renderer.Tick(static_cast<uint64_t>(numberOfTicks));
-            dx12Renderer.Render();
+            dx12Game.ProcessTicks(static_cast<uint64_t>(numberOfTicks));
+            dx12Game.RenderAndWaitForVSync();
         }
     }
     

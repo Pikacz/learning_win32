@@ -1,0 +1,78 @@
+{
+    "configurations": [
+        {
+            "name": "terminal",
+            "includePath": [
+                "${workspaceFolder}/src/shared",
+                "${workspaceFolder}/src/win32"
+            ],
+            "defines": [
+                // "_DEBUG"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "compilerArgs": [
+                "/W4",
+                "/D TERMINAL_RUN",
+                "/D DEBUG",
+                "/D _DEBUG",
+                "/D UNICODE",
+                "/D _UNICODE",
+                "/D NOMINMAX",
+                "/D WIN_32_BUILD",
+                "/D GPU_DEBUG"
+            ]
+        },
+        {
+            "name": "debug",
+            "includePath": [
+                "${workspaceFolder}/src/shared",
+                "${workspaceFolder}/src/win32"
+            ],
+            "defines": [
+                // "_DEBUG"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "compilerArgs": [
+                "/W4",
+                "/D DEBUG",
+                "/D _DEBUG",
+                "/D UNICODE",
+                "/D _UNICODE",
+                "/D NOMINMAX",
+                "/D WIN_32_BUILD",
+                "/D GPU_DEBUG"
+            ]
+        },
+        {
+            "name": "release",
+            "includePath": [
+                "${workspaceFolder}/src/shared",
+                "${workspaceFolder}/src/win32"
+            ],
+            "defines": [
+                // "_DEBUG"
+            ],
+            "windowsSdkVersion": "10.0.22621.0",
+            "compilerPath": "cl.exe",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "windows-msvc-x64",
+            "compilerArgs": [
+                "/W4",
+                "/D UNICODE",
+                "/D _UNICODE",
+                "/D NOMINMAX",
+                "/D WIN_32_BUILD"
+            ]
+        }
+    ],
+    "version": 4
+}
